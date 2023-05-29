@@ -8,7 +8,7 @@ let cardsID1 = document.querySelector(".cardsID1");
 let q = 0;
 let topicsSelected = {};
 let dictionary = {
-    
+    "cs": cs
 }
 
 let topicForNotes = [];
@@ -17,13 +17,20 @@ let topicForNotes = [];
 
 function main() {
     addAllNotes();
-    addListnerToCheckboxes();
-    addListenerToRange();
     addListenerToGenerateFlashcards();
     addListenerToGenerateNotes();
+    initializeTopicsSelectedForNotesFlash();
 }
 
 main();
+
+////////////
+function initializeTopicsSelectedForNotesFlash() {
+    for (const [topic] of Object.entries(dictionary)) {
+        topicsSelected[topic] = 1;
+        topicForNotes.push(topic);
+    }
+}
 
 
 ///////////////
@@ -66,33 +73,12 @@ function addNote(q, a) {
      <span class="A"><span style="color: black">Answer:</span><br>${a}</span>
     `;
     noteID1.appendChild(element);
-    // element.scrollIntoView();
+    element.scrollIntoView();
 }
 
-function addListnerToCheckboxes() {
-    for (const checkbox of checkboxes) {
-        checkbox.addEventListener('change', function () {
-            if (this.checked) {
-                topicsSelected[this.id] = 1;
-                topicForNotes.push(this.id);
-            } else {
-                delete topicsSelected[this.id];
-                delete topicForNotes[topicForNotes.indexOf(this.id)];
-            }
-            console.log(topicForNotes);
-            q = Object.keys(topicsSelected).length;
-            var maxQs = getMaxQuestions(topicsSelected);
-            xInput.setAttribute("min", q.toString());
-            xInput.setAttribute("max", maxQs.toString());
-            xInput.setAttribute("value", q.toString());
-            selectedQ.innerHTML = "&nbsp;" + q.toString() + `/${maxQs}&nbsp;`;
-        });
-    }
-}
-
-function getMaxQuestions(topicsSelected) {
+function getMaxQuestions() {
     let sum = 0;
-    for (const [topic] of Object.entries(topicsSelected)) {
+    for (const [topic] of Object.entries(dictionary)) {
         if (dictionary[topic]) {
             sum += (dictionary[topic].match(/Q:/g) || []).length;
         }
@@ -100,23 +86,10 @@ function getMaxQuestions(topicsSelected) {
     return sum;
 }
 
-function addListenerToRange() {
-    xInput.addEventListener('change', () => {
-        q = parseInt(xInput.value);
-        xInput.setAttribute("value", q.toString());
-        selectedQ.innerHTML = "&nbsp;" + q.toString() + `/${getMaxQuestions(topicsSelected)} &nbsp;`;
-    });
-}
-
-
 function addListenerToGenerateFlashcards() {
     generateQuestionsButton.addEventListener('click', () => {
-        var maxQ = getMaxQuestions(topicsSelected);
-        if (q === 0) {
-            slideNotification("Please select at least one topic.")
-        } else if (maxQ < q) {
-            slideNotification("Please select more topic.")
-        } else {
+        var q = getMaxQuestions(topicsSelected);
+        {
             // reinitialize the dictionary
             for (const [key] of Object.entries(topicsSelected)) {
                 topicsSelected[key] = 1;
@@ -211,9 +184,6 @@ function textToQuestions(text) {
 //function to divide questions count evenly, almost evenly
 //n questions are divided
 function divideQuestionsCount(n) {
-
-    //console.log("dividing " + n + " questions in ")
-    //console.log(topicsSelected)
 
     for (const [key] of Object.entries(topicsSelected)) {
         if (!dictionary[key]) {

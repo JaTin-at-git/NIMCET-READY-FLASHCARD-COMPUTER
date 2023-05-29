@@ -1,7 +1,7 @@
 //The goal is to generate question page
-document.querySelector("#generateQP").addEventListener('click', function () {
-    generateQP();
-});
+// document.querySelector("#generateQP").addEventListener('click', function () {
+//     generateQP();
+// });
 
 //create layout
 async function generateQP() {
